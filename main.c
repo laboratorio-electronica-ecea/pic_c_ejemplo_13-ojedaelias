@@ -79,19 +79,44 @@ void main(void) {                       // Función principal
     gpio_config();                      // Inicializo las entradas y salidas
     uart_config();                      // Configuro la UART
     
-    while(1) {                          // Super loop
+    while (1) { // Super loop
         // Ver este link: https://pbs.twimg.com/media/BafQje7CcAAN5en.jpg
-        
+
         // TODO: Completar la encuesta por las teclas
-        
+        if (PIN_TEC1 == 0) {
+            __delay_ms(40);
+            uart_tx_byte('U');
+            while (PIN_TEC1 == 0)
+                __delay_ms(40);
+        }
+        if (PIN_TEC2 == 0) {
+            __delay_ms(40);
+            uart_tx_byte('D');
+            while (PIN_TEC2 == 0)
+                __delay_ms(40);
+        }
+
         resultado = uart_rx_byte(&dato_recibido);
-        
+
         if (resultado == 1) {
-            if ( dato_recibido == '1' ) {
-                PIN_LED1 = !PIN_LED1;
-            } else if ( dato_recibido == '2' ) {
-                PIN_LED2 = !PIN_LED2;
+            switch (dato_recibido) {
+                case '1':
+                    PIN_LED1 = !PIN_LED1;
+                    break;
+
+                case '2':
+                    PIN_LED2 = !PIN_LED2;
+                    break;
+
+                case '3':
+                    PIN_LED3 = !PIN_LED3;
+                    break;
+
+                case '4':
+                    PIN_LED4 = !PIN_LED4;
+                    break;
             }
+
         }
     }
     
@@ -102,6 +127,7 @@ void main(void) {                       // Función principal
     return;
 }
 
+
 void gpio_config() {    
     // TODO: Completar la inicialización de los pines
     ANSEL  = 0;
@@ -110,8 +136,10 @@ void gpio_config() {
     TRIS_TEC1 = 1;
     TRIS_TEC2 = 1;
     
-    PIN_LED1 = 0;
-    PIN_LED2 = 0;
+    TRIS_LED1 = 0;
+    TRIS_LED2 = 0;
+    TRIS_LED3 = 0;
+    TRIS_LED4 = 0;
 }
 
 void uart_config() {
@@ -121,8 +149,8 @@ void uart_config() {
     TXSTAbits.TXEN  = 1;        // Transmision habilitada
     TXSTAbits.SYNC  = 0;        // Modo asincrónico
     
-    TXSTAbits.BRGH  =0; 
-    BAUDCTLbits.BRG16 =1;
+    TXSTAbits.BRGH    = 0; 
+    BAUDCTLbits.BRG16 = 1;
     SPBRG = 25;                 // Baudrate de 9600
     
     RCSTAbits.SPEN = 1;         // Puerto de serie habilitado
